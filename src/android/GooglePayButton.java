@@ -14,6 +14,7 @@ import java.util.concurrent.CountDownLatch;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -21,15 +22,15 @@ import android.widget.LinearLayout;
 import android.view.Gravity;
 
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.wallet.PaymentsClient;
 import com.google.android.gms.wallet.Wallet;
-import com.google.android.gms.wallet.AutoResolveHelper;
 import com.google.android.gms.wallet.WalletConstants;
 import com.google.android.gms.wallet.button.PayButton;
 import com.google.android.gms.wallet.button.ButtonOptions;
 import com.google.android.gms.wallet.button.ButtonConstants;
 import com.google.android.gms.wallet.IsReadyToPayRequest;
-import com.google.android.gms.wallet.PaymentsClient;
 import com.google.android.gms.wallet.PaymentData;
 import com.google.android.gms.wallet.PaymentDataRequest;
 
@@ -72,7 +73,7 @@ public class GooglePayButton extends CordovaPlugin {
       JSONObject paymentMethod = new JSONObject();
       paymentMethod.put("type", paymentDataRequest.getJSONArray("allowedPaymentMethods").getJSONObject(0).getString("type"));
       paymentMethod.put("parameters", paymentMethodParams);
-      
+
       JSONArray allowedPaymentMethods = new JSONArray();
       allowedPaymentMethods.put(paymentMethod);
 
@@ -129,7 +130,7 @@ public class GooglePayButton extends CordovaPlugin {
               buttonType = ButtonConstants.ButtonType.SUBSCRIBE;
               break;
           }
-          
+
           // Get parent layout
           FrameLayout parentLayout = (FrameLayout) cordova.getActivity().findViewById(android.R.id.content);
 
@@ -153,7 +154,7 @@ public class GooglePayButton extends CordovaPlugin {
 
           FrameLayout.LayoutParams buttonParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
           buttonParams.gravity = android.view.Gravity.TOP | android.view.Gravity.LEFT;
-          
+
           this.buttonContainer = new FrameLayout(cordova.getActivity());
           this.buttonContainer.addView(this.payButton, buttonParams);
           parentLayout.addView(this.buttonContainer, containerParams);
@@ -195,7 +196,7 @@ public class GooglePayButton extends CordovaPlugin {
           callbackContext.error(e.getMessage());
         }
       });
-      
+
       return true;
     }
     catch(Exception e) {
@@ -317,35 +318,33 @@ public class GooglePayButton extends CordovaPlugin {
   private void requestPayment(JSONObject paymentDataRequest) {
     try {
       PaymentDataRequest request = PaymentDataRequest.fromJson(paymentDataRequest.toString());
+      final Activity activity = cordova.getActivity();
       cordova.setActivityResultCallback(this);
-      AutoResolveHelper.resolveTask(
-        paymentsClient.loadPaymentData(request),
-        this.cordova.getActivity(),
-        LOAD_PAYMENT_DATA_REQUEST_CODE);
+
+      paymentsClient.loadPaymentData(request)
+        .addOnSuccessListener(activity, paymentData -> {
+          // Payment data returned directly
+          handlePaymentSuccess(paymentData);
+        })
+        .addOnFailureListener(activity, throwable -> {
+          if (throwable instanceof ResolvableApiException) {
+            try {
+              ((ResolvableApiException) throwable).startResolutionForResult(
+                  activity, LOAD_PAYMENT_DATA_REQUEST_CODE);
+            } catch (IntentSender.SendIntentException e) {
+              Log.e("GooglePayButton", "Error launching Google Pay resolution: " + e.getMessage());
+              handlePaymentError("Error launching Google Pay: " + e.getMessage());
+            }
+          } else if (throwable instanceof ApiException) {
+            ApiException apiEx = (ApiException) throwable;
+            handlePaymentError("Google Pay API error: " + apiEx.getStatusCode() + " - " + apiEx.getMessage());
+          } else {
+            handlePaymentError("Unexpected error: " + throwable.getMessage());
+          }
+        });
     }
     catch(Exception e) {
       Log.e("GooglePayButton", "Error starting GPay payment process: " + e.getMessage());
-    }
-  }
-
-  @Override
-  public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    if (requestCode == LOAD_PAYMENT_DATA_REQUEST_CODE) {
-      switch (resultCode) {
-        case Activity.RESULT_OK:
-            PaymentData paymentData = PaymentData.getFromIntent(data);
-            handlePaymentSuccess(paymentData);
-            break;
-        case Activity.RESULT_CANCELED:
-            this.handlePaymentCanceled();
-            break;
-        case AutoResolveHelper.RESULT_ERROR:
-            Status status = AutoResolveHelper.getStatusFromIntent(data);
-            this.handlePaymentError(this.getMessageFromStatus(status));
-            break;
-        default:
-            this.handlePaymentError("ERROR_UNKNOWN: Unknown result code: " + resultCode);
-      }
     }
   }
 
