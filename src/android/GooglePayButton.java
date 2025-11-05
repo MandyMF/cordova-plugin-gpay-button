@@ -444,6 +444,8 @@ public class GooglePayButton extends CordovaPlugin {
       Log.d("GPayButton", "dispatching JS callback from handlePaymentSuccess inside call");
       WebView webView = (WebView) this.webView.getEngine().getView();
       String js = String.format("document.dispatchEvent(new CustomEvent('gpay', { detail: %s }));", jsEventData);
+
+      Log.d("GPayButton", "JS to evaluate: " + js);
       webView.evaluateJavascript(js, null);
     });
   }
