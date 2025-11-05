@@ -241,7 +241,7 @@ public class GooglePayButton extends CordovaPlugin {
 
   private boolean setVisibility(JSONArray args, CallbackContext callbackContext) {
     Log.d("GPayButton", "setVisibility");
-    webView.loadUrl("javascript:console.log('GPayButton', 'setVisibility');");
+    //webView.loadUrl("javascript:console.log('GPayButton', 'setVisibility');");
     try {
       if(this.payButton == null)
         throw new Exception("GPay button is not created.");
@@ -333,7 +333,7 @@ public class GooglePayButton extends CordovaPlugin {
   @Override
   public void onActivityResult(int requestCode, int resultCode, Intent data) {
     Log.d("GPayButton", "onActivityResult: paymentData = " + requestCode);
-    webView.loadUrl("javascript:console.log('GPayButton', 'onActivityResult: paymentData = '" + requestCode +  ");");
+    //webView.loadUrl("javascript:console.log('GPayButton', 'onActivityResult: paymentData = '" + requestCode +  ");");
     if (requestCode == LOAD_PAYMENT_DATA_REQUEST_CODE) {
       switch (resultCode) {
         case Activity.RESULT_OK:
@@ -355,7 +355,7 @@ public class GooglePayButton extends CordovaPlugin {
 
   private void handlePaymentSuccess(PaymentData paymentData) {
     Log.d("GPayButton", "handlePaymentSuccess: paymentData = " + paymentData.toJson());
-    webView.loadUrl("javascript:console.log('GPayButton', 'handlePaymentSuccess: paymentData ='" + paymentData.toJson() + ");");
+    //webView.loadUrl("javascript:console.log('GPayButton', 'handlePaymentSuccess: paymentData ='" + paymentData.toJson() + ");");
 
     try {
       String paymentInformation = paymentData.toJson();
@@ -373,7 +373,7 @@ public class GooglePayButton extends CordovaPlugin {
 
   private void handlePaymentCanceled() {
     Log.d("GPayButton", "handlePaymentCanceled: paymentData");
-    webView.loadUrl("javascript:console.log('GPayButton', 'handlePaymentCanceled: paymentData);");
+    //webView.loadUrl("javascript:console.log('GPayButton', 'handlePaymentCanceled: paymentData);");
 
     try {
       JSONObject result = new JSONObject();
@@ -387,7 +387,7 @@ public class GooglePayButton extends CordovaPlugin {
 
   private void handlePaymentError(String errorMsg) {
     Log.d("GPayButton", "handlePaymentError: paymentData = " + errorMsg);
-    webView.loadUrl("javascript:console.log('GPayButton', 'handlePaymentError: paymentData ='" + errorMsg + ");");
+    //webView.loadUrl("javascript:console.log('GPayButton', 'handlePaymentError: paymentData ='" + errorMsg + ");");
 
     try {
       JSONObject result = new JSONObject();
