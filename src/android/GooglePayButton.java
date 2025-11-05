@@ -154,7 +154,7 @@ public class GooglePayButton extends CordovaPlugin {
 
           FrameLayout.LayoutParams buttonParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
           buttonParams.gravity = android.view.Gravity.TOP | android.view.Gravity.LEFT;
-
+          
           this.buttonContainer = new FrameLayout(cordova.getActivity());
           this.buttonContainer.addView(this.payButton, buttonParams);
           parentLayout.addView(this.buttonContainer, containerParams);
@@ -314,38 +314,63 @@ public class GooglePayButton extends CordovaPlugin {
     WebView webView = (WebView) this.webView.getEngine().getView();
     return webView.getScale();
   }
-
   private void requestPayment(JSONObject paymentDataRequest) {
     try {
-      PaymentDataRequest request = PaymentDataRequest.fromJson(paymentDataRequest.toString());
-      final Activity activity = cordova.getActivity();
-      cordova.setActivityResultCallback(this);
+        PaymentDataRequest request = PaymentDataRequest.fromJson(paymentDataRequest.toString());
+        final Activity activity = cordova.getActivity();
+        cordova.setActivityResultCallback(this);
 
-      paymentsClient.loadPaymentData(request)
-        .addOnSuccessListener(activity, paymentData -> {
-          // Payment data returned directly
-          handlePaymentSuccess(paymentData);
-        })
-        .addOnFailureListener(activity, throwable -> {
-          if (throwable instanceof ResolvableApiException) {
-            try {
-              ((ResolvableApiException) throwable).startResolutionForResult(
-                  activity, LOAD_PAYMENT_DATA_REQUEST_CODE);
-            } catch (IntentSender.SendIntentException e) {
-              Log.e("GooglePayButton", "Error launching Google Pay resolution: " + e.getMessage());
-              handlePaymentError("Error launching Google Pay: " + e.getMessage());
+        Task<PaymentData> task = paymentsClient.loadPaymentData(request);
+
+        task.addOnSuccessListener(activity, paymentData -> {
+            if (paymentData != null) {
+                handlePaymentSuccess(paymentData);
+            } else {
+                handlePaymentError("PaymentData is null after RESULT_OK");
             }
-          } else if (throwable instanceof ApiException) {
-            ApiException apiEx = (ApiException) throwable;
-            handlePaymentError("Google Pay API error: " + apiEx.getStatusCode() + " - " + apiEx.getMessage());
-          } else {
-            handlePaymentError("Unexpected error: " + throwable.getMessage());
-          }
         });
+
+        task.addOnFailureListener(activity, throwable -> {
+            if (throwable instanceof ResolvableApiException) {
+                try {
+                    ((ResolvableApiException) throwable).startResolutionForResult(
+                        activity, LOAD_PAYMENT_DATA_REQUEST_CODE);
+                } catch (IntentSender.SendIntentException e) {
+                    Log.e("GooglePayButton", "Error launching Google Pay resolution: " + e.getMessage());
+                    handlePaymentError("Error launching Google Pay resolution: " + e.getMessage());
+                }
+            } else if (throwable instanceof ApiException) {
+                ApiException apiEx = (ApiException) throwable;
+                handlePaymentError("Google Pay API error: " + apiEx.getStatusCode() + " - " + apiEx.getMessage());
+            } else {
+                handlePaymentError("Unexpected error: " + throwable.getMessage());
+            }
+        });
+
+    } catch (Exception e) {
+        Log.e("GooglePayButton", "Error starting GPay payment process: " + e.getMessage());
+        handlePaymentError("Error starting GPay payment process: " + e.getMessage());
     }
-    catch(Exception e) {
-      Log.e("GooglePayButton", "Error starting GPay payment process: " + e.getMessage());
-    }
+}
+
+  @Override
+  public void onActivityResult(int requestCode, int resultCode, Intent data) {
+      if (requestCode == LOAD_PAYMENT_DATA_REQUEST_CODE) {
+          if (resultCode == Activity.RESULT_OK) {
+              PaymentData paymentData = PaymentData.getFromIntent(data);
+              if (paymentData != null) {
+                  handlePaymentSuccess(paymentData);
+              } else {
+                  handlePaymentError("PaymentData is null after RESULT_OK");
+              }
+          }
+          else if (resultCode == Activity.RESULT_CANCELED) {
+              handlePaymentCanceled();
+          }
+          else {
+              handlePaymentError("ERROR_UNKNOWN: Unknown result code: " + resultCode);
+          }
+      }
   }
 
   private void handlePaymentSuccess(PaymentData paymentData) {
