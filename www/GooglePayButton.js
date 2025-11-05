@@ -19,7 +19,7 @@ var GooglePayButton = {
     this.__buttonIsVisible = false;
 
     document.removeEventListener("gpay", this.__paymentEventListener);
-    this.__paymentMonitorCallback = null;
+    this.__paymentHandlerCallback = null;
   },
   __monitorAttachedElementPosition: function () {
     if (this.__attachedToElement && this.__buttonIsVisible) {
@@ -44,7 +44,7 @@ var GooglePayButton = {
     exec(successCallback, errorCallback, 'GooglePayButton', 'create', [environment, buttonOptions, paymentDataRequest]);
   },
   setPaymentHandler: function (paymentHandlerCallback) {
-    this.__paymentMonitorCallback = paymentHandlerCallback;
+    this.__paymentHandlerCallback = paymentHandlerCallback;
   },
   attachToElement: function (domElement) {
     this.__attachedToElementPosition = null;
