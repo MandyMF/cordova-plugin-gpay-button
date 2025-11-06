@@ -147,12 +147,12 @@ public class GooglePayButton extends CordovaPlugin {
                   .setAllowedPaymentMethods(paymentMethods.toString())
                   .build());
 
-          FrameLayout.LayoutParams containerParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+          FrameLayout.LayoutParams containerParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
           containerParams.gravity = Gravity.TOP | Gravity.LEFT;
           containerParams.setMargins(0, 0, 0, 0);
 
-          FrameLayout.LayoutParams buttonParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-          buttonParams.gravity = android.view.Gravity.TOP | android.view.Gravity.LEFT;
+          FrameLayout.LayoutParams buttonParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
+          buttonParams.gravity = android.view.Gravity.TOP | android.view.Gravity.CENTER_HORIZONTAL;
           
           this.buttonContainer = new FrameLayout(cordova.getActivity());
           this.buttonContainer.addView(this.payButton, buttonParams);
@@ -213,13 +213,14 @@ public class GooglePayButton extends CordovaPlugin {
 
       final int left = buttonPosition.getInt("left");
       final int top = buttonPosition.getInt("top");
+      final int marginRight = buttonPosition.getInt("marginRight");
 
       //Create a waiting mechanism for the UI code to complete 
       final CountDownLatch latch = new CountDownLatch(1);
     
       cordova.getActivity().runOnUiThread(() -> {
         FrameLayout.LayoutParams containerParams = (FrameLayout.LayoutParams)this.buttonContainer.getLayoutParams();
-        containerParams.setMargins(this.convertCssToAndroidPixels(left), this.convertCssToAndroidPixels(top), 0, 0);
+        containerParams.setMargins(this.convertCssToAndroidPixels(left), this.convertCssToAndroidPixels(top), this.convertCssToAndroidPixels(marginRight), 0);
         this.buttonContainer.setLayoutParams(containerParams);
 
         // Signal that the work is done

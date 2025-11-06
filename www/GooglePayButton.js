@@ -24,10 +24,14 @@ var GooglePayButton = {
   __monitorAttachedElementPosition: function () {
     if (this.__attachedToElement && this.__buttonIsVisible) {
       const rect = this.__attachedToElement.getBoundingClientRect();
-      if (!this.__attachedToElementPosition || this.__attachedToElementPosition.left != rect.left || this.__attachedToElementPosition.top != rect.top) {
+      const viewportWidth = document.documentElement.clientWidth;
+      const distanceFromViewportRight = viewportWidth - (rect.right);
+
+      if (!this.__attachedToElementPosition || this.__attachedToElementPosition.left != rect.left || this.__attachedToElementPosition.top != rect.top) {       
         this.__attachedToElementPosition = {
           left: rect.left,
-          top: rect.top
+          top: rect.top,
+          marginRight: distanceFromViewportRight,
         };
 
         this.setPosition(this.__attachedToElementPosition);

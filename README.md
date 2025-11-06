@@ -71,7 +71,8 @@ if (!buttonAnchor) {
 const rect = buttonAnchor.getBoundingClientRect();
 const buttonPosition = {
   top: rect.top,    // integer in pixels. Negative values are allowed. 
-  left: rect.left   // integer in pixels. Negative values are allowed. 
+  left: rect.left,  // integer in pixels. Negative values are allowed.
+  rightMargin: 0, // integer in pixels. Negative values are allowed.
 };
 
 cordova.plugins.GooglePayButton.create(envirionment, buttonOptions, paymentDataRequest, 
