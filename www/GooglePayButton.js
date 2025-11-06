@@ -25,11 +25,23 @@ var GooglePayButton = {
     if (this.__attachedToElement && this.__buttonIsVisible) {
       const rect = this.__attachedToElement.getBoundingClientRect();
       if (!this.__attachedToElementPosition || this.__attachedToElementPosition.left != rect.left || this.__attachedToElementPosition.top != rect.top) {
+        let marginRight = 0;
+        let right = 0;
+        let paddingRight = 0;
+        
+        if (this.__attachedToElement) {
+          const style = window.getComputedStyle(this.__attachedToElement);
+          marginRight = parseFloat(style.getPropertyValue("margin-right")) || 0;
+          right = parseFloat(style.getPropertyValue("right")) || 0; 
+          paddingRight = parseFloat(style.getPropertyValue("padding-right")) || 0;
+        }
+        
         this.__attachedToElementPosition = {
           left: rect.left,
           top: rect.top,
-          right: rect.right,
-          bottom: rect.bottom
+          right: right,
+          marginRight: marginRight,
+          paddingRight: paddingRight
         };
 
         this.setPosition(this.__attachedToElementPosition);
