@@ -214,13 +214,15 @@ public class GooglePayButton extends CordovaPlugin {
 
       final int left = buttonPosition.getInt("left");
       final int top = buttonPosition.getInt("top");
+      final int right = buttonPosition.getInt("right");
+      final int bottom = buttonPosition.getInt("bottom");
 
       //Create a waiting mechanism for the UI code to complete 
       final CountDownLatch latch = new CountDownLatch(1);
     
       cordova.getActivity().runOnUiThread(() -> {
         FrameLayout.LayoutParams containerParams = (FrameLayout.LayoutParams)this.buttonContainer.getLayoutParams();
-        containerParams.setMargins(this.convertCssToAndroidPixels(left), this.convertCssToAndroidPixels(top), 0, 0);
+        containerParams.setMargins(this.convertCssToAndroidPixels(left), this.convertCssToAndroidPixels(top), this.convertCssToAndroidPixels(right), this.convertCssToAndroidPixels(bottom));
         this.buttonContainer.setLayoutParams(containerParams);
 
         // Signal that the work is done

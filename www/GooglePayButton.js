@@ -27,7 +27,9 @@ var GooglePayButton = {
       if (!this.__attachedToElementPosition || this.__attachedToElementPosition.left != rect.left || this.__attachedToElementPosition.top != rect.top) {
         this.__attachedToElementPosition = {
           left: rect.left,
-          top: rect.top
+          top: rect.top,
+          right: rect.right,
+          bottom: rect.bottom
         };
 
         this.setPosition(this.__attachedToElementPosition);
