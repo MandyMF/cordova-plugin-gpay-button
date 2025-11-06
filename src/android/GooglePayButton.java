@@ -147,11 +147,11 @@ public class GooglePayButton extends CordovaPlugin {
                   .setAllowedPaymentMethods(paymentMethods.toString())
                   .build());
 
-          FrameLayout.LayoutParams containerParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+          FrameLayout.LayoutParams containerParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
           containerParams.gravity = Gravity.TOP | Gravity.LEFT;
           containerParams.setMargins(0, 0, 0, 0);
 
-          FrameLayout.LayoutParams buttonParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+          FrameLayout.LayoutParams buttonParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
           buttonParams.gravity = android.view.Gravity.TOP | android.view.Gravity.LEFT;
           
           this.buttonContainer = new FrameLayout(cordova.getActivity());
