@@ -18,10 +18,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/MandyMF/cordova-plugin-gpay-button.git"
+    "url": "https://github.com/fonoma/cordova-plugin-gpay-button.git"
   },
   "bugs": {
-    "url": "https://github.com/MandyMF/cordova-plugin-gpay-button/issues"
+    "url": "https://github.com/fonoma/cordova-plugin-gpay-button/issues"
   },
   "author": "MandyMF",
   "contributors": [
